@@ -1,0 +1,95 @@
+version: '3.8'
+
+services:
+  # Crypto News Scorer - runs daily at 6 AM via cron
+  crypto-news:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+    container_name: mech-crypto-news
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+    env_file:
+      - ../config/.env
+    volumes:
+      - ../data:/app/data
+      - ../config:/app/config:ro
+      - ../scripts:/app/scripts:ro
+      - ../cron:/app/cron:ro
+    restart: unless-stopped
+    command: >
+      sh -c "
+        echo '0 6 * * * python /app/scripts/crypto_news_scorer.py >> /app/data/crypto_news_cron.log 2>&1' > /etc/crontabs/appuser &&
+        crond -f -l 8
+      "
+    profiles:
+      - crypto
+
+  # n8n workflow automation
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: mech-n8n
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD}
+      - WEBHOOK_URL=${WEBHOOK_URL}
+      - GENERIC_TIMEZONE=Asia/Ho_Chi_Minh
+    env_file:
+      - ../config/.env
+    volumes:
+      - ../data/n8n:/home/node/.n8n
+      - ../n8n/workflows:/home/node/.n8n/workflows:ro
+    ports:
+      - "5678:5678"
+    restart: unless-stopped
+    profiles:
+      - n8n
+
+  # Backup service - runs every 6 hours
+  backup:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+    container_name: mech-backup
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+    env_file:
+      - ../config/.env
+    volumes:
+      - ../data:/app/data:ro
+      - ../config:/app/config:ro
+      - ../scripts:/app/scripts:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    restart: unless-stopped
+    command: >
+      sh -c "
+        echo '0 */6 * * * python /app/scripts/backup.py >> /app/data/backup_cron.log 2>&1' > /etc/crontabs/appuser &&
+        crond -f -l 8
+      "
+    profiles:
+      - backup
+
+  # Health check endpoint
+  health:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+    container_name: mech-health
+    ports:
+      - "8000:8000"
+    command: python -m http.server 8000
+    profiles:
+      - health
+
+volumes:
+  n8n-data:
+
+networks:
+  default:
+    name: mech-network

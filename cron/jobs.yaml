@@ -1,0 +1,62 @@
+# Hermes Cronjob Definitions
+# Source of truth for all scheduled jobs
+# Sync with: hermes cronjob list
+
+jobs:
+  - id: crypto-morning-news
+    name: "Crypto Morning News"
+    description: "Fetch crypto news, score with LLM, send ≥8.0 to Telegram"
+    schedule: "0 6 * * *"  # Daily 6:00 AM
+    script: "scripts/crypto_news_scorer.py"
+    enabled: true
+    toolsets: ["terminal", "web"]
+    env_vars:
+      - OPENROUTER_API_KEY
+      - TG_BOT_TOKEN
+      - TG_CHAT_ID
+      - CRYPTOPANIC_TOKEN
+    timeout: 300
+    retry: 1
+
+  - id: daily-backup
+    name: "Daily Backup to Cloud"
+    description: "Backup SQLite, n8n, Hermes data to OneDrive and R2"
+    schedule: "0 */6 * * *"  # Every 6 hours
+    script: "scripts/backup.py"
+    enabled: true
+    toolsets: ["terminal"]
+    env_vars:
+      - RCLONE_ONEDRIVE_REMOTE
+      - RCLONE_R2_REMOTE
+      - R2_BUCKET
+    timeout: 600
+    retry: 2
+
+  - id: weekly-repo-backup
+    name: "Weekly Repository Backup"
+    description: "Full repo archive to cloud (redundant)"
+    schedule: "0 3 * * 0"  # Sunday 3:00 AM
+    script: "scripts/weekly_repo_backup.py"
+    enabled: false  # Enable after script created
+    toolsets: ["terminal"]
+    env_vars:
+      - RCLONE_ONEDRIVE_REMOTE
+      - RCLONE_R2_REMOTE
+      - R2_BUCKET
+    timeout: 600
+
+  - id: health-check
+    name: "System Health Check"
+    description: "Verify all services running, send alert if down"
+    schedule: "*/15 * * * *"  # Every 15 minutes
+    script: "scripts/health_check.py"
+    enabled: false  # Enable after script created
+    toolsets: ["terminal", "web"]
+    env_vars:
+      - TG_BOT_TOKEN
+      - TG_CHAT_ID
+    timeout: 60
+
+# Sync command (run after editing this file):
+# hermes cronjob create --name crypto-morning-news --schedule "0 6 * * *" --script scripts/crypto_news_scorer.py --skills hermes-agent --toolsets terminal,web
+# hermes cronjob create --name daily-backup --schedule "0 */6 * * *" --script scripts/backup.py --toolsets terminal

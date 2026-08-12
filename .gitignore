@@ -1,0 +1,49 @@
+# Environment & Secrets
+.env
+.env.*
+secrets/
+*.key
+*.pem
+
+# Data & Database
+data/
+*.db
+*.sqlite
+*.sqlite3
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Node / n8n
+node_modules/
+.n8n/
+*.log
+
+# Docker
+.docker/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Backup artifacts
+*.tar.gz
+*.zip
+*.bak
+
+# Local config
+config/.env.local
+config/*.local.yaml

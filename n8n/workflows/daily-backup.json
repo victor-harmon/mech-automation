@@ -1,0 +1,91 @@
+{
+  "name": "Daily Backup to Cloud",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": 6
+        }
+      },
+      "id": "1",
+      "name": "Every 6 Hours",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "command": "python /app/scripts/backup.py",
+        "options": {}
+      },
+      "id": "2",
+      "name": "Run Backup Script",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "const { execution } = items[0].json;\nconst success = execution.data.result?.stdout?.includes('BACKUP COMPLETED');\n\nreturn [{\n  json: {\n    success,\n    timestamp: new Date().toISOString(),\n    message: success ? '✅ Backup completed successfully' : '❌ Backup failed'\n  }\n}];"
+      },
+      "id": "3",
+      "name": "Parse Result",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TG_CHAT_ID }}",
+        "text": "={{ $json.message }}",
+        "parseMode": "Markdown"
+      },
+      "id": "4",
+      "name": "Send Telegram Notification",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [850, 300],
+      "credentials": {
+        "telegramApi": "Telegram Account"
+      }
+    }
+  ],
+  "connections": {
+    "Every 6 Hours": {
+      "main": [
+        [
+          {
+            "node": "Run Backup Script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Backup Script": {
+      "main": [
+        [
+          {
+            "node": "Parse Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Result": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "id": "1"
+}
