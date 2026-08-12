@@ -5,9 +5,6 @@ on:
     branches: [main, develop]
   pull_request:
     branches: [main]
-  schedule:
-    # Weekly build test (Sunday 2 AM UTC)
-    - cron: '0 2 * * 0'
   workflow_dispatch:
 
 env:
@@ -107,15 +104,6 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
             python scripts/crypto_news_scorer.py --help || true
 
-      - name: Test backup script (dry run)
-        run: |
-          docker run --rm \
-            -e RCLONE_ONEDRIVE_REMOTE=test \
-            -e RCLONE_R2_REMOTE=test \
-            -e R2_BUCKET=test \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
-            python scripts/backup.py --help || true
-
   # Deploy to VM (manual trigger)
   deploy:
     needs: test-image
@@ -127,42 +115,3 @@ jobs:
           echo "Deploy step - customize for your VM"
           echo "Example: ssh user@vm 'cd ~/mech-automation && git pull && docker compose -f infra/docker-compose.yml up -d --build'"
           echo "Add SSH key to GitHub Secrets for automated deploy"
-
-  # Migration test (weekly)
-  migration-test:
-    needs: build
-    if: github.event_name == 'schedule'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Simulate fresh VM migration
-        run: |
-          echo "=== MIGRATION TEST ==="
-          # Clone to temp dir
-          git clone . /tmp/mech-automation-test
-          cd /tmp/mech-automation-test
-          
-          # Create minimal .env
-          cp config/.env.example config/.env
-          sed -i 's/your-key-here/test/g' config/.env
-          sed -i 's/your-secure-password/test/g' config/.env
-          sed -i 's/changeme-/test-/g' config/.env
-          
-          # Build and test
-          docker compose -f infra/docker-compose.yml build
-          
-          # Quick health check
-          docker compose -f infra/docker-compose.yml up -d
-          sleep 10
-          docker compose -f infra/docker-compose.yml ps
-          
-          # Test scripts
-          docker compose -f infra/docker-compose.yml run --rm crypto-news python scripts/crypto_news_scorer.py --help || true
-          docker compose -f infra/docker-compose.yml run --rm backup python scripts/backup.py --help || true
-          
-          # Cleanup
-          docker compose -f infra/docker-compose.yml down -v
-          
-          echo "=== MIGRATION TEST PASSED ==="

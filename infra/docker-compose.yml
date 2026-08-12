@@ -51,42 +51,6 @@ services:
     profiles:
       - n8n
 
-  # Backup service - runs every 6 hours
-  backup:
-    build:
-      context: ..
-      dockerfile: infra/Dockerfile
-    container_name: mech-backup
-    environment:
-      - TZ=Asia/Ho_Chi_Minh
-    env_file:
-      - ../config/.env
-    volumes:
-      - ../data:/app/data:ro
-      - ../config:/app/config:ro
-      - ../scripts:/app/scripts:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    restart: unless-stopped
-    command: >
-      sh -c "
-        echo '0 */6 * * * python /app/scripts/backup.py >> /app/data/backup_cron.log 2>&1' > /etc/crontabs/appuser &&
-        crond -f -l 8
-      "
-    profiles:
-      - backup
-
-  # Health check endpoint
-  health:
-    build:
-      context: ..
-      dockerfile: infra/Dockerfile
-    container_name: mech-health
-    ports:
-      - "8000:8000"
-    command: python -m http.server 8000
-    profiles:
-      - health
-
 volumes:
   n8n-data:
 
