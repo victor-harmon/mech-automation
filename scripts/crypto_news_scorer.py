@@ -15,6 +15,10 @@ from typing import List, Dict, Any, Optional
 import feedparser
 import requests
 import pandas as pd
+from dotenv import load_dotenv
+
+# Load .env file
+load_dotenv(Path.home() / "mech-automation" / "config" / ".env")
 
 # ========== CONFIG ==========
 CONFIG = {
