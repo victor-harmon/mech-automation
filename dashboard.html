@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mech-Automation Dashboard</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0d1117; color: #e6edf3; line-height: 1.6; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        header { border-bottom: 1px solid #30363d; padding-bottom: 20px; margin-bottom: 30px; }
+        h1 { font-size: 2rem; font-weight: 600; color: #58a6ff; }
+        .subtitle { color: #8b949e; margin-top: 8px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 20px; transition: border-color 0.2s; }
+        .card:hover { border-color: #58a6ff; }
+        .card h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 12px; color: #58a6ff; display: flex; align-items: center; gap: 8px; }
+        .card h2::before { content: ''; width: 8px; height: 8px; background: #58a6ff; border-radius: 50%; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; margin-right: 6px; }
+        .badge-ready { background: #238636; color: #fff; }
+        .badge-wip { background: #d29922; color: #0d1117; }
+        .badge-empty { background: #da3633; color: #fff; }
+        .tool-list { list-style: none; }
+        .tool-list li { padding: 8px 0; border-bottom: 1px solid #21262d; display: flex; justify-content: space-between; align-items: center; }
+        .tool-list li:last-child { border-bottom: none; }
+        .tool-name { font-family: 'Monaco', 'Consolas', monospace; font-size: 0.9rem; color: #e6edf3; }
+        .tool-desc { color: #8b949e; font-size: 0.85rem; }
+        .tree { font-family: 'Monaco', 'Consolas', monospace; font-size: 0.85rem; white-space: pre; color: #8b949e; overflow-x: auto; }
+        .tree .dir { color: #d2a8ff; }
+        .tree .file { color: #e6edf3; }
+        .tree .readme { color: #3fb950; }
+        .links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+        .btn { padding: 6px 12px; background: #21262d; border: 1px solid #30363d; border-radius: 6px; color: #e6edf3; text-decoration: none; font-size: 0.85rem; transition: all 0.2s; }
+        .btn:hover { background: #30363d; border-color: #58a6ff; color: #58a6ff; }
+        .btn-primary { background: #238636; border-color: #2ea043; }
+        .btn-primary:hover { background: #2ea043; color: #fff; }
+        .status-bar { display: flex; gap: 16px; margin-top: 20px; flex-wrap: wrap; }
+        .stat { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 12px 16px; }
+        .stat-label { font-size: 0.75rem; color: #8b949e; text-transform: uppercase; }
+        .stat-value { font-size: 1.5rem; font-weight: 600; color: #58a6ff; }
+        footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #30363d; color: #8b949e; font-size: 0.85rem; text-align: center; }
+        @media (max-width: 600px) { .container { padding: 15px; } .grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔧 Mech-Automation Dashboard</h1>
+            <p class="subtitle">Portable automation infrastructure for Mechanical Engineering workflows</p>
+        </header>
+
+        <div class="status-bar">
+            <div class="stat"><div class="stat-label">SolidWorks Scripts</div><div class="stat-value">5</div></div>
+            <div class="stat"><div class="stat-label">Documentation</div><div class="stat-value">6 README</div></div>
+            <div class="stat"><div class="stat-label">Track A (Products)</div><div class="stat-value"><span class="badge badge-empty">Chưa có sản phẩm</span></div></div>
+            <div class="stat"><div class="stat-label">Track B (Agency)</div><div class="stat-value"><span class="badge badge-wip">Infra sẵn sàng</span></div></div>
+            <div class="stat"><div class="stat-label">VM Disk Usage</div><div class="stat-value">93% ⚠️</div></div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h2>📁 Cấu trúc dự án</h2>
+                <pre class="tree">mech-automation/
+├── <span class="dir">.github/workflows/</span>     # CI/CD pipelines
+├── <span class="dir">infra/</span>                 # Dockerfile, docker-compose.yml
+├── <span class="dir">scripts/</span>               # Python automation scripts
+│   └── <span class="dir">mechanical/</span>         # 5 SolidWorks tools
+├── <span class="dir">n8n/workflows/</span>         # n8n workflow exports (JSON)
+├── <span class="dir">cron/</span>                  # Cronjob definitions (YAML)
+├── <span class="dir">config/</span>                # .env.example, config templates
+├── <span class="dir">products/</span>              # <span class="badge badge-empty">TRỐNG</span> - Digital product source
+├── <span class="dir">docs/</span>                  # MIGRATION.md, RUNBOOK.md
+├── <span class="dir">secrets/</span>               # .gitignore only
+├── <span class="dir">data/</span>                  # Runtime data (gitignored)
+├── <span class="readme">README.md</span>
+└── <span class="file">requirements.txt</span></pre>
+            </div>
+
+            <div class="card">
+                <h2>🛠️ SolidWorks Tools (scripts/mechanical/)</h2>
+                <ul class="tool-list">
+                    <li>
+                        <span class="tool-name">sw_batch_export.py</span>
+                        <span class="badge badge-ready">Ready</span>
+                    </li>
+                    <li style="color:#8b949e;font-size:.85rem">Batch export SLDPRT/SLDASM → STEP, STL, PDF, DXF, glTF...</li>
+                    <li>
+                        <span class="tool-name">sw_bom_extractor.py</span>
+                        <span class="badge badge-ready">Ready</span>
+                    </li>
+                    <li style="color:#8b949e;font-size:.85rem">Extract BOM + cost estimation (material + manufacturing)</li>
+                    <li>
+                        <span class="tool-name">sw_drawing_template.py</span>
+                        <span class="badge badge-ready">Ready</span>
+                    </li>
+                    <li style="color:#8b949e;font-size:.85rem">Generate .drwdot templates (ISO/ASME/JIS, A0-A4)</li>
+                    <li>
+                        <span class="tool-name">sw_part_library.py</span>
+                        <span class="badge badge-ready">Ready</span>
+                    </li>
+                    <li style="color:#8b949e;font-size:.85rem">Generate standard parts library (fasteners, bearings, profiles)</li>
+                    <li>
+                        <span class="tool-name">sw_sheetmetal_export.py</span>
+                        <span class="badge badge-ready">Ready</span>
+                    </li>
+                    <li style="color:#8b949e;font-size:.85rem">Flat pattern DXF/DWG/PDF + auto nesting layout</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2>📚 Documentation</h2>
+                <div class="links">
+                    <a href="scripts/mechanical/README.md" class="btn" target="_blank">📖 Tổng quan tất cả tool</a>
+                    <a href="scripts/mechanical/README_sw_batch_export.md" class="btn" target="_blank">📦 Batch Export</a>
+                    <a href="scripts/mechanical/README_sw_bom_extractor.md" class="btn" target="_blank">📊 BOM Extractor</a>
+                    <a href="scripts/mechanical/README_sw_drawing_template.md" class="btn" target="_blank">📐 Drawing Template</a>
+                    <a href="scripts/mechanical/README_sw_part_library.md" class="btn" target="_blank">📚 Part Library</a>
+                    <a href="scripts/mechanical/README_sw_sheetmetal_export.md" class="btn" target="_blank">🔧 Sheet Metal</a>
+                    <a href="docs/MIGRATION.md" class="btn" target="_blank">🔄 Migration Runbook</a>
+                    <a href="docs/RUNBOOK.md" class="btn" target="_blank">📋 Daily Operations</a>
+                    <a href="cron/jobs.yaml" class="btn" target="_blank">⏰ Cron Jobs</a>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🐳 Docker Services (infra/docker-compose.yml)</h2>
+                <ul class="tool-list">
+                    <li>
+                        <span class="tool-name">crypto-news</span>
+                        <span class="badge badge-ready">Running</span>
+                    </li>
+                    <li style="color:#8b949e;font-size:.85rem">Daily 6AM: Fetch crypto news → LLM score → Telegram ≥8.0</li>
+                    <li>
+                        <span class="tool-name">n8n</span>
+                        <span class="badge badge-wip">Not started</span>
+                    </li>
+                    <li style="color:#8b949e;font-size:.85rem">Workflow automation (port 5678) - Track B</li>
+                    <li>
+                        <span class="tool-name">backup</span>
+                        <span class="badge badge-wip">Not started</span>
+                    </li>
+                    <li style="color:#8b949e;font-size:.85rem">6-hourly: SQLite, n8n, Hermes → OneDrive + R2</li>
+                </ul>
+                <div class="links" style="margin-top:12px">
+                    <span class="btn" style="background:#21262d;color:#8b949e;cursor:default">Profiles: crypto, n8n, backup</span>
+                    <code style="background:#0d1117;padding:4px 8px;border-radius:4px;font-size:.8rem">docker compose -f infra/docker-compose.yml --profile crypto up -d</code>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🎯 Side Hustle Tracks</h2>
+                <div style="margin-bottom:16px">
+                    <strong>Track A: Digital CAD Products</strong>
+                    <ul style="margin:8px 0 0 20px;color:#8b949e;font-size:.9rem">
+                        <li>Scripts sẵn sàng → generate fastener library, drawing templates</li>
+                        <li>Đóng gói: STEP + PDF drawing + catalog CSV</li>
+                        <li>Đăng bán: Gumroad, Cults3D, Thangs, GrabCAD</li>
+                        <li><span class="badge badge-empty">products/ folder trống</span></li>
+                    </ul>
+                </div>
+                <div>
+                    <strong>Track B: Automation Agency (SME)</strong>
+                    <ul style="margin:8px 0 0 20px;color:#8b949e;font-size:.9rem">
+                        <li>n8n workflows: backup, alerts, quote generation, BOM processing</li>
+                        <li>SolidWorks API automation: batch export, BOM extract, drawing creation</li>
+                        <li>Docker portable → deploy khách hàng <30 phút</li>
+                        <li><span class="badge badge-wip">Cần setup n8n + workflow mẫu</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>⚡ Quick Actions</h2>
+                <div class="links">
+                    <a href="file:///C:/Users/Administrator/mech-automation" class="btn btn-primary" target="_blank">📂 Mở folder dự án</a>
+                    <a href="file:///C:/Users/Administrator/mech-automation/scripts/mechanical" class="btn" target="_blank">🔧 Folder scripts cơ khí</a>
+                    <a href="file:///C:/Users/Administrator/mech-automation/products" class="btn" target="_blank">📦 Folder products (trống)</a>
+                    <span class="btn" style="background:#da3633;border-color:#f85149;color:#fff;cursor:default">⚠️ Disk 93% - Cần dọn</span>
+                </div>
+                <div style="margin-top:16px;padding:12px;background:#0d1117;border-radius:6px;font-family:monaco,consolas,monospace;font-size:.8rem;color:#8b949e">
+                    <div>Chạy demo script (cần máy có SolidWorks):</div>
+                    <div style="margin-top:8px">python sw_part_library.py "C:\TestLib" --fastener-sizes M6,M8 --categories fasteners</div>
+                    <div style="margin-top:4px">python sw_drawing_template.py --standard ISO --sizes A3,A4 --output "C:\Templates"</div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Mech-Automation v1.0 | Built for portability | Runs anywhere Docker runs</p>
+            <p>Updated: 2026-08-13 | Author: Johnny (Mechanical Engineer)</p>
+        </footer>
+    </div>
+</body>
+</html>
