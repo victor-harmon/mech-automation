@@ -376,7 +376,7 @@ def demo():
         calc = PressFitCalculator(MaterialGrade.STEEL_42CRMO4, MaterialGrade.STEEL_45,
                                    geo, tol, FitLoad(), 0.15)
         r = calc.calculate()
-        print(f"   {fit_class}: δ={tol.interference_mean:.1f}µm, P={r.pressure_mpa:.1f}MPa, "
+        print(f"   {shaft_cls}/{hub_cls}: δ={tol.interference_mean:.1f}µm, P={r.pressure_mpa:.1f}MPa, "
               f"T_cap={r.torque_capacity_nm:.0f}Nm, F_ins={r.insertion_force_kn:.1f}kN")
     
     print("\n" + "=" * 60)
