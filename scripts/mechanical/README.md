@@ -1,18 +1,27 @@
 # 🔧 SolidWorks Automation Toolkit - Bộ công cụ tự động hóa SolidWorks
 
-Bộ 5 script Python tự động hóa quy trình thiết kế cơ khí trên SolidWorks thông qua COM API.
+Bộ 12 script Python hỗ trợ thiết kế cơ khí (COM automation + calculators).
 
 ---
 
 ## 📦 Danh sách công cụ
 
-| Script | Mục đích | Output |
-|--------|----------|--------|
-| `sw_batch_export.py` | Xuất batch nhiều định dạng | STEP, STL, PDF, DXF, glTF, 3D PDF, IGES, Parasolid |
-| `sw_bom_extractor.py` | Trích xuất BOM + ước lượng chi phí | Excel/CSV: PartNo, Qty, Material, Mass, Cost, Vendor... |
-| `sw_drawing_template.py` | Tạo template drawing chuẩn | `.drwdot` (ISO/ASME/JIS, A0-A4, ANSI A-E) |
-| `sw_part_library.py` | Generate thư viện bộ phận chuẩn | `.SLDPRT` + `.step` + `PART_CATALOG.csv` |
-| `sw_sheetmetal_export.py` | Xuất flat pattern + nesting | DXF/DWG/PDF + `nesting_layout.dxf` + report JSON |
+| Script | Mục đích |
+|--------|----------|
+| `sw_batch_export.py` | Xuất batch nhiều định dạng: STEP, STL, PDF, DXF, glTF, IGES, Parasolid |
+| `sw_bom_extractor.py` | Trích xuất BOM + ước lượng chi phí: Excel/CSV |
+| `sw_drawing_template.py` | Tạo template drawing chuẩn: `.drwdot` |
+| `sw_part_library.py` | Tạo thư viện chi tiết tiêu chuẩn: `.SLDPRT` + `.step` |
+| `sw_sheetmetal_export.py` | Xuất flat pattern + nesting: DXF/DWG/PDF + report JSON |
+| `sw_beam_calculator.py` | Kết cấu dầm: biến dạng, ứng suất uốn/cắt, MAWP |
+| `sw_gear_calculator.py` | Bánh răng: spur/helical/bevel/worm (ISO 6336, AGMA 2001) |
+| `sw_shaft_calculator.py` | Trục: xoắn, uốn, mỏi, tốc độ tới hạn, khóa (ASME B106.1M, DIN 743) |
+| `sw_tolerance_stack.py` | Xếp chồng dung sai: worst-case, RSS, Monte Carlo (ASME Y14.5, ISO 1101) |
+| `sw_spring_design.py` | Lò xo nén/kéo/xoắn (EN 13906, DIN 2088/2089, ISO 7046) |
+| `sw_press_fit.py` | Lắp chặt: lực lắp, ứng suất trụ/vòng, khe hở (DIN 18095) |
+| `sw_bolt_pattern.py` | Bố trí bulông: lực, momen, shear, prying, an toàn (FEA-style) |
+
+Các file `README_<name>.md` có hướng dẫn chi tiết từng tool.
 
 ---
 
@@ -37,7 +46,7 @@ python -m pywin32_postinstall  # Đăng ký COM
 python sw_batch_export.py "C:\Projects" "C:\Exports" --formats step,stl,pdf,dxf,gltf
 
 # 2. Trích BOM từ assembly + ước giá
-python sw_bom_extractor.py "C:\Projects\Assembly.SLDASM" "C:\Exports\BOM.csv" --material-csv materials.csv --process CNC_Milling
+python sw_bom_extractor.py "C:\Projects\Assembly.SLDASM" "C:\Exports\BOM.csv" --material-csv materials.csv
 
 # 3. Tạo template drawing ISO A3, A4
 python sw_drawing_template.py --standard ISO --sizes A3,A4 --output "C:\Templates"
@@ -49,96 +58,18 @@ python sw_part_library.py "C:\PartsLibrary" --standard ISO --categories fastener
 python sw_sheetmetal_export.py "C:\SheetMetalParts" "C:\Exports" --nesting-sheet 1500x3000 --formats dxf,pdf
 ```
 
----
+Tính toán (không cần SolidWorks):
 
-## 📁 Cấu trúc output mẫu
-
-```
-Exports/
-├── sw_batch_export/
-│   ├── Part1/
-│   │   ├── Part1.step
-│   │   ├── Part1.stl
-│   │   └── Part1.dxf
-│   └── Assembly1/
-│       └── ...
-├── sw_bom_extractor/
-│   └── BOM.csv
-├── sw_drawing_template/
-│   ├── ISO_A3.drwdot
-│   └── ISO_A4.drwdot
-├── sw_part_library/
-│   ├── fasteners/
-│   │   ├── ISO_bolts_M6.SLDPRT
-│   │   └── ISO_bolts_M6.step
-│   ├── bearings/
-│   ├── profiles/
-│   └── PART_CATALOG.csv
-└── sw_sheetmetal_export/
-    ├── Bracket1/
-    │   ├── Bracket1.dxf
-    │   ├── Bracket1.pdf
-    │   └── Bracket1_bends.csv
-    ├── nesting_layout.dxf
-    └── nesting_report.json
+```bash
+python sw_beam_calculator.py --help
+python sw_gear_calculator.py --help
+python sw_shaft_calculator.py --help
+python sw_tolerance_stack.py --help
+python sw_spring_design.py --help
+python sw_press_fit.py --help
+python sw_bolt_pattern.py --help
 ```
 
 ---
 
-## 🔧 Tùy chỉnh
-
-### Material costs (`sw_bom_extractor.py`)
-Tạo file `materials.csv`:
-```csv
-Material,Cost_USD_per_kg
-A36,0.80
-S355JR,0.95
-Stainless_304,3.50
-6061-T6,3.20
-ABS,2.50
-```
-
-Chạy: `--material-csv materials.csv`
-
-### Manufacturing process
-Các process hỗ trợ: `CNC_Milling`, `CNC_Turning`, `Laser_Cutting`, `Waterjet`, `Sheet_Metal_Bending`, `Welding`, `Injection_Molding`, `Die_Casting`, `Forging`, `3D_Print_FDM`, `3D_Print_SLA`, `3D_Print_SLS`
-
----
-
-## ⚠️ Lưu ý quan trọng
-
-1. **SolidWorks phải đang chạy** (hoặc script sẽ tự khởi động)
-2. **Không thao tác chuột/phím** khi script đang chạy (COM automation)
-3. **File lớn** (>50MB) có thể chậm - chạy từng batch nhỏ
-4. **License SolidWorks** - cần seat network hoặc standalone
-5. **Backup dữ liệu** trước khi chạy batch trên thư mục gốc
-
----
-
-## 🐛 Troubleshooting
-
-| Lỗi | Nguyên nhân | Khắc phục |
-|-----|-------------|-----------|
-| `win32com.client.Dispatch failed` | SolidWorks chưa cài/không đăng ký COM | Repair SolidWorks, chạy `python -m pywin32_postinstall` |
-| `Access denied` | Không quyền Admin | Chạy terminal as Administrator |
-| `Document not found` | Đường dẫn sai/ file bị khóa | Kiểm tra path, đóng file trong SW |
-| `Export format failed` | Phiên bản SW không hỗ trợ format | Cập nhật SW hoặc bỏ format đó |
-
----
-
-## 📄 License
-
-MIT License - Tự do sử dụng, sửa đổi, phân phối.
-
----
-
-## 🤝 Đóng góp
-
-1. Fork repo
-2. Tạo feature branch
-3. Test trên SolidWorks thực tế
-4. Submit PR
-
----
-
-*Cập nhật: 2026-08-13 | Tác giả: Johnny (Mechanical Engineer)*
+## Cập nhật: 2026-08-20 | 12 tools, duy trì bởi Johnny (Mechanical Engineer)

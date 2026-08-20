@@ -91,6 +91,24 @@ docker compose -f infra/docker-compose.yml run --rm backup python scripts/backup
 
 ---
 
+## 🔧 Mechanical Calculators (12 tools)
+
+12 Python calculators for mechanical engineering (independent of SolidWorks, work on any Windows without COM):
+
+| Script | Tính toán |
+|--------|-----------|
+| `scripts/mechanical/sw_beam_calculator.py` | Dầm: biến dạng, ứng suất uốn/cắt, MAWP, tải trọng |
+| `scripts/mechanical/sw_gear_calculator.py` | Bánh răng: spur/helical/bevel/worm, torque, efficiency |
+| `scripts/mechanical/sw_shaft_calculator.py` | Trục: xoắn, uốn, mỏi, tốc độ tới hạn, khóa |
+| `scripts/mechanical/sw_tolerance_stack.py` | Dung sai: worst-case, RSS, Monte Carlo |
+| `scripts/mechanical/sw_spring_design.py` | Lò xo: nén/kéo/xoắn, dây, số vòng, stress |
+| `scripts/mechanical/sw_press_fit.py` | Lắp chặt: lực lắp, ứng suất trụ/vòng, khe hở |
+| `scripts/mechanical/sw_bolt_pattern.py` | Bulông: lực, momen, shear, prying, an toàn |
+
+Mỗi file có README riêng trong `scripts/mechanical/README_<name>.md`.
+
+---
+
 ## 📅 Cronjobs (Defined in `cron/jobs.yaml`)
 
 | Job | Schedule | Script |
